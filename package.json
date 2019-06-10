@@ -7,6 +7,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "pubnub-react": "^1.2.0",
     "react": "16.8.3",
     "react-native": "0.59.9",
     "react-native-maps": "^0.24.2"
