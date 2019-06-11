@@ -68,6 +68,16 @@ class AnimatedMarkers extends React.Component {
     );
   }
 
+  componentDidUpdate() {
+    this.pubnub.publish({
+      message: {
+        latitude: this.state.latitude,
+        longitude: this.state.longitude,
+      },
+      channel: 'location',
+    });
+  }
+
   componentWillUnmount() {
     navigator.geolocation.clearWatch(this.watchID);
   }
