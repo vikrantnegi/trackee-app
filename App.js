@@ -11,7 +11,7 @@ const LONGITUDE = -122.4324;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-class AnimatedMarkers extends React.Component {
+export default class App extends React.Component {
   constructor(props) {
     super(props);
 
@@ -34,6 +34,26 @@ class AnimatedMarkers extends React.Component {
   }
 
   componentDidMount() {
+    this.watchLocation();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.latitude !== prevState.latitude) {
+      this.pubnub.publish({
+        message: {
+          latitude: this.state.latitude,
+          longitude: this.state.longitude,
+        },
+        channel: 'location',
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    navigator.geolocation.clearWatch(this.watchID);
+  }
+
+  watchLocation = () => {
     const { coordinate } = this.state;
 
     this.watchID = navigator.geolocation.watchPosition(
@@ -63,24 +83,10 @@ class AnimatedMarkers extends React.Component {
         enableHighAccuracy: true,
         timeout: 20000,
         maximumAge: 1000,
-        distanceFilter: 5,
+        distanceFilter: 10,
       }
     );
-  }
-
-  componentDidUpdate() {
-    this.pubnub.publish({
-      message: {
-        latitude: this.state.latitude,
-        longitude: this.state.longitude,
-      },
-      channel: 'location',
-    });
-  }
-
-  componentWillUnmount() {
-    navigator.geolocation.clearWatch(this.watchID);
-  }
+  };
 
   getMapRegion = () => ({
     latitude: this.state.latitude,
@@ -115,5 +121,3 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
   },
 });
-
-export default AnimatedMarkers;
